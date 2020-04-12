@@ -78,7 +78,7 @@ class Qualifier:
     def start_of_calculation(self):
         calculator = Calculator(self.type_equations, self.a, self.b, self.accuracy, self.type_solve)
         calculator.calculate()
-
+        printResult(calculator)
         del calculator
 
 
@@ -88,7 +88,6 @@ class Calculator:
     type_equations = 0
     a = 0
     b = 0
-    count_root = 0
     steps = 0
     previous_count = 0
     accuracy = 0
@@ -102,21 +101,24 @@ class Calculator:
         self.mode_solve = mode_solve
 
     def calculate(self):
+        self.result = self.b
         if self.mode_solve == 1:
             while 1:
                 self.steps += 1
-                if self.solvable:
-                    self.get_Solve_Chord()
+                if self.solvable or (self.steps < 50000):
+                    self.get_Solve_Tangent()
                     if abs(self.result - self.previous_count) < self.accuracy:
                         self.accuracy = abs(self.result - self.previous_count)
                         break
+                    else:
+                        continue
                 else:
                     break
         elif self.mode_solve == 2:
             while 1:
                 self.steps += 1
-                if self.solvable:
-                    self.get_Solve_Tangent()
+                if self.solvable or (self.steps < 50000):
+                    self.get_Solve_Chord()
                     if abs(self.result - self.previous_count) < self.accuracy:
                         self.accuracy = abs(self.result - self.previous_count)
                         break
@@ -129,21 +131,24 @@ class Calculator:
         try:
             self.previous_count = self.result
             if self.type_equations == 1:
-                self.result = (self.a * (self.b ^ 3 - 6 * self.b + 2) - self.b * (self.a ^ 3 - 6 * self.a + 2)) / \
-                              ((self.b ^ 3 - 6 * self.b + 2) - (self.a ^ 3 - 6 * self.a + 2))
+                self.result = self.result - ((self.a - self.result) *
+                                             (math.pow(self.result, 3) - 6 * self.result + 2)) / \
+                              ((math.pow(self.a, 3) - 6 * self.a + 2) -
+                               (math.pow(self.result, 3) - 6 * self.result + 2))
             elif self.type_equations == 2:
-                self.result = (self.a * (math.sqrt(self.b + 1) - 1 / self.b) - self.b * (
-                        math.sqrt(self.a + 1) - 1 / self.a)) / \
-                              ((math.sqrt(self.b + 1) - 1 / self.b) - (math.sqrt(self.a + 1) - 1 / self.a))
+                self.result = self.result - ((self.a - self.result) *
+                                             (math.sqrt(self.result + 1) - 1 / self.result)) / \
+                              ((math.sqrt(self.a + 1) - 1 / self.a) - (math.sqrt(self.result + 1) - 1 / self.result))
             elif self.type_equations == 3:
-                self.result = (self.a * (self.b ^ 2 - 20 * math.sin(self.b)) - self.b * (
-                        self.a ^ 2 - 20 * math.sin(self.a))) / \
-                              ((self.b ^ 2 - 20 * math.sin(self.b)) - (self.a ^ 2 - 20 * math.sin(self.a)))
+                self.result = self.result - ((self.a - self.result) *
+                                             (math.pow(self.result, 2) - 20 * math.sin(self.result))) / \
+                              ((math.pow(self.a, 2) - 20 * math.sin(self.a)) - (
+                                      math.pow(self.result, 2) - 20 * math.sin(self.result)))
             elif self.type_equations == 4:
-                self.result = (self.a * (self.b ^ 3 - 2 * self.b ^ 2 - 4 * self.b + 7) - self.b * (
-                        self.a ^ 3 - 2 * self.a ^ 2 - 4 * self.a + 7)) / \
-                              ((self.b ^ 3 - 2 * self.b ^ 2 - 4 * self.b + 7) - (
-                                      self.a ^ 3 - 2 * self.a ^ 2 - 4 * self.a + 7))
+                self.result = self.result - ((self.a - self.result) * (
+                        math.pow(self.result, 3) - 2 * math.pow(self.result, 2) - 4 * self.result + 7)) / \
+                              ((math.pow(self.a, 3) - 2 * math.pow(self.a, 2) - 4 * self.a + 7) - (
+                                      math.pow(self.result, 3) - 2 * math.pow(self.result, 2) - 4 * self.result + 7))
             else:
                 getReadyAnswer(1)
             if self.a * self.result < 0:
@@ -152,31 +157,72 @@ class Calculator:
                 self.a = self.result
         except ValueError:
             self.solvable = 0
+        except TypeError:
+            self.solvable = 0
+
+        # Useless method. Don't work with any count.
+        # try:
+        #     self.previous_count = self.result
+        #     if self.type_equations == 1:
+        #         self.result = (self.a * (math.pow(self.b, 3) - 6 * self.b + 2) - self.b *
+        #         (math.pow(self.a, 3) - 6 * self.a + 2)) / \
+        #                       ((math.pow(self.b, 3) - 6 * self.b + 2) - (math.pow(self.a, 3) - 6 * self.a + 2))
+        #     elif self.type_equations == 2:
+        #         self.result = (self.a * (math.sqrt(self.b + 1) - 1 / self.b) - self.b * (
+        #                 math.sqrt(self.a + 1) - 1 / self.a)) / \
+        #                       ((math.sqrt(self.b + 1) - 1 / self.b) - (math.sqrt(self.a + 1) - 1 / self.a))
+        #     elif self.type_equations == 3:
+        #         self.result = (self.a * (math.pow(self.b, 2) - 20 * math.sin(self.b)) - self.b * (
+        #                 math.pow(self.a, 2) - 20 * math.sin(self.a))) / \
+        #                       ((math.pow(self.b, 2) - 20 * math.sin(self.b)) -
+        #                       (math.pow(self.a, 2) - 20 * math.sin(self.a)))
+        #     elif self.type_equations == 4:
+        #         self.result = (self.a * (math.pow(self.b, 3) - 2 * math.pow(self.b, 2) - 4 * self.b + 7) - self.b * (
+        #                 math.pow(self.a, 3) - 2 * math.pow(self.a, 2) - 4 * self.a + 7)) / \
+        #                       ((math.pow(self.b, 3) - 2 * math.pow(self.b, 2) - 4 * self.b + 7) - (
+        #                               math.pow(self.a, 3) - 2 * math.pow(self.a, 2) - 4 * self.a + 7))
+        #     else:
+        #         getReadyAnswer(1)
+        #     if self.a * self.result < 0:
+        #         self.b = self.result
+        #     elif self.result * self.b < 0:
+        #         self.a = self.result
+        # except ValueError:
+        #     self.solvable = 0
+        # except TypeError:
+        #     self.solvable = 0
 
     def get_Solve_Tangent(self):
         try:
             self.previous_count = self.result
             if self.type_equations == 1:
-                self.result = self.result - (self.result ^ 3 - 6 * self.result + 2) / (3 * self.result ^ 2 - 6)
+                self.result = self.result - (math.pow(self.result, 3) - 6 * self.result + 2) / (
+                        3 * math.pow(self.result, 2) - 6)
             elif self.type_equations == 2:
                 self.result = self.result - (math.sqrt(self.result + 1) - 1 / self.result) / (
-                        1 / (2 * math.sqrt(self.x + 1)) + 1 / (self.result ^ 2))
+                        1 / (2 * math.sqrt(self.result + 1)) + 1 / (math.pow(self.result, 2)))
             elif self.type_equations == 3:
-                self.result = self.result - (self.result ^ 2 - 20 * math.sin(self.result)) / (
+                self.result = self.result - (math.pow(self.result, 2) - 20 * math.sin(self.result)) / (
                         2 * self.result - 20 * math.cos(self.result))
             elif self.type_equations == 4:
-                self.result = self.result - (self.result ^ 3 - 2 * self.result ^ 3 - 4 * self.result + 7) / (
-                            3 * self.result ^ 2 - 4 * self.result - 4)
+                self.result = self.result - (
+                        math.pow(self.result, 3) - 2 * math.pow(self.result, 2) - 4 * self.result + 7) / (
+                                      3 * math.pow(self.result, 2) - 4 * self.result - 4)
             else:
                 getReadyAnswer(1)
         except ValueError:
             self.solvable = 0
+        except TypeError:
+            self.solvable = 0
 
 
 def printResult(calculator):
-    print("\nEquation root:" + calculator.count_root + "\n" +
-          "Count of iteration: " + calculator.steps + "\n" +
-          "Calculation error: " + calculator.error + "\n")
+    if calculator.solvable == 1:
+        print("\nEquation root: " + str(calculator.result) + "\n" +
+              "Count of iteration: " + str(calculator.steps) + "\n" +
+              "Calculation error: " + str(calculator.accuracy) + "\n")
+    else:
+        getReadyAnswer(1)
 
 
 def getReadyAnswer(type_answer):
