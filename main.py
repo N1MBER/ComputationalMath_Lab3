@@ -1,6 +1,6 @@
-import logic
+import NonLinearEquations
 
-print("Welcome to not linear solver!")
+print("Welcome to non linear solver!")
 
 while 1:
     print("Please choose method of solution:\n"
@@ -10,21 +10,22 @@ while 1:
     try:
         answer = float(input("Please choose a variant: ").strip())
         if answer == 1:
-            qualifier = logic.Qualifier(1)
+            qualifier = NonLinearEquations.Qualifier(1)
             del qualifier
             continue
         elif answer == 2:
-            qualifier = logic.Qualifier(2)
+            qualifier = NonLinearEquations.Qualifier(2)
             del qualifier
             continue
         elif answer == 3:
             print("Exit...")
             break
-    except TypeError:
-        logic.getReadyAnswer(1)
-        continue
+    # except TypeError:
+    #     NonLinearEquations.getReadyAnswer(1)
+    #     print("fd")
+    #     continue
     except ValueError:
-        logic.getReadyAnswer(1)
+        NonLinearEquations.getReadyAnswer(1)
         continue
     except KeyboardInterrupt:
         print("Exit...")
