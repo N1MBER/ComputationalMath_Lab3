@@ -115,51 +115,86 @@ class Calculator:
 
     def calculate(self):
         self.result = self.b
-        if self.get_Solve_Value(self.a) * self.get_Solve_Value(self.b) < 0:
-            if self.mode_solve == 1:
-                while 1:
-                    self.steps += 1
-                    if self.solvable and (self.steps < 2500000):
-                        self.get_Solve_Tangent()
-                        count_x = [self.result, self.previous_count]
-                        count_y = [0, self.get_Solve_Value(self.previous_count)]
-                        segment = [count_x, count_y]
-                        self.segments.append(segment)
-                        if abs(self.result - self.previous_count) < self.accuracy and abs(
-                                self.get_Solve_Value(self.result)) < self.accuracy and (
-                                self.a <= self.result <= self.b):
-                            self.accuracy = abs(self.result - self.previous_count)
+        if self.check_derivative():
+            if self.get_Solve_Value(self.a) * self.get_Solve_Value(self.b) < 0:
+                if self.mode_solve == 1:
+                    while 1:
+                        self.steps += 1
+                        if self.solvable and (self.steps < 2500000):
+                            self.get_Solve_Tangent()
+                            count_x = [self.result, self.previous_count]
+                            count_y = [0, self.get_Solve_Value(self.previous_count)]
+                            segment = [count_x, count_y]
+                            self.segments.append(segment)
+                            if abs(self.result - self.previous_count) < self.accuracy and abs(
+                                    self.get_Solve_Value(self.result)) < self.accuracy and (
+                                    self.a <= self.result <= self.b):
+                                self.accuracy = abs(self.result - self.previous_count)
+                                break
+                            else:
+                                continue
+                        else:
+                            if self.steps == 2500000:
+                                self.status = 3
+                            else:
+                                self.status = 1
                             break
+                elif self.mode_solve == 2:
+                    while 1:
+                        self.steps += 1
+                        if self.solvable and (self.steps < 2500000):
+                            count_x = [self.result, self.a]
+                            count_y = [self.get_Solve_Value(self.result), self.get_Solve_Value(self.a)]
+                            segment = [count_x, count_y]
+                            self.segments.append(segment)
+                            self.get_Solve_Chord()
+                            if abs(self.result - self.previous_count) < self.accuracy and abs(
+                                    self.get_Solve_Value(self.result)) < self.accuracy and (
+                                    self.a <= self.result <= self.b):
+                                self.accuracy = abs(self.result - self.previous_count)
+                                break
                         else:
-                            continue
-                    else:
-                        if self.steps == 2500000:
-                            self.status = 3
-                        else:
-                            self.status = 1
-                        break
-            elif self.mode_solve == 2:
-                while 1:
-                    self.steps += 1
-                    if self.solvable and (self.steps < 2500000):
-                        count_x = [self.result, self.a]
-                        count_y = [self.get_Solve_Value(self.result), self.get_Solve_Value(self.a)]
-                        segment = [count_x, count_y]
-                        self.segments.append(segment)
-                        self.get_Solve_Chord()
-                        if abs(self.result - self.previous_count) < self.accuracy and abs(
-                                self.get_Solve_Value(self.result)) < self.accuracy and (
-                                self.a <= self.result <= self.b):
-                            self.accuracy = abs(self.result - self.previous_count)
+                            if self.steps == 2500000:
+                                self.status = 3
+                            else:
+                                self.status = 1
                             break
-                    else:
-                        if self.steps == 2500000:
-                            self.status = 3
-                        else:
-                            self.status = 1
-                        break
+            else:
+                self.status = 2
+
+    def check_derivative(self):
+        float_range = np.arange(self.a, self.b, (self.b - self.a) / 100)
+        convergence = 1
+        flag = 0
+        if self.get_derivative(self.a) < 0:
+            flag = 1
         else:
-            self.status = 2
+            flag = 0
+        previous_flag = flag
+        for i in float_range:
+            if self.get_derivative(i) < 0:
+                flag = 1
+            else:
+                flag = 0
+            if previous_flag != flag:
+                convergence = 0
+                break
+            previous_flag = flag
+        if self.get_second_derivative(self.a) < 0:
+            flag = 1
+        else:
+            flag = 0
+        previous_flag = flag
+        for i in float_range:
+            if self.get_second_derivative(i) < 0:
+                flag = 1
+            else:
+                flag = 0
+            if previous_flag != flag:
+                convergence = 0
+                break
+            previous_flag = flag
+        return convergence
 
     def get_Solve_Value(self, x):
         try:
@@ -267,6 +302,8 @@ def getReadyAnswer(type_answer):
         print("Counts of iteration reached 2.5 million , solution not found.\n")
     elif type_answer == 6:
         print("The initial approximation is poorly selected, solution not found.\n")
+    elif type_answer == 7:
+        print("Counts of iteration reached 250 thousand , solution not found.\n")
 
 
 def make_graph(calculator):
@@ -294,10 +331,3 @@ def make_graph(calculator):
         return
     except ZeroDivisionError:
         return
-
-
-# if calculator.a <= segment[0][0] <= calculator.b and calculator.a <= segment[0][1] <= calculator.b and \
-# calculator.get_Solve_Value(calculator.a) <= segment[1][0] <= calculator.get_Solve_Value(
-# calculator.b) \
-#     and calculator.get_Solve_Value(calculator.a) <= segment[1][1] <= \
-#     calculator.get_Solve_Value(calculator.b):
