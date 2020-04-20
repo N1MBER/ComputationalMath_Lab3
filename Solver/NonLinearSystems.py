@@ -110,25 +110,6 @@ class Qualifier:
                         NonLinearEquations.getReadyAnswer(1)
                         continue
 
-    # def set_coefficient(self):
-    #     while 1:
-    #         try:
-    #             print("Please write coefficient \'a\',\'b\',\'c\':\n ")
-    #             list_count = list(input("Coefficient: ").strip().split(" "))
-    #             print(list_count)
-    #             if len(list_count) == 3:
-    #                 cof = []
-    #                 for i in list_count:
-    #                     cof.append(float(i))
-    #                 self.coefficient.append(cof)
-    #                 break
-    #             else:
-    #                 NonLinearEquations.getReadyAnswer(1)
-    #                 continue
-    #         except TypeError:
-    #             NonLinearEquations.getReadyAnswer(1)
-    #             continue
-
     def set_accuracy(self):
         while 1:
             try:
@@ -421,14 +402,18 @@ def printResult(calculator):
             print("\nEquation roots: x=" + str(calculator.x) + ", y=" + str(calculator.y) + "\n" +
                   "Count of iteration: " + str(calculator.iterations) + "\n" +
                   "Calculation error: " + str(calculator.accuracy) + "\n")
-            make_graph_2d(calculator)
+            make_graph_2d(calculator, 1)
         else:
             print("\nEquation roots: x=" + str(calculator.x) + ", y=" + str(calculator.y) + ", z=" +
                   str(calculator.z) + "\n" +
                   "Count of iteration: " + str(calculator.iterations) + "\n" +
                   "Calculation error: " + str(calculator.accuracy) + "\n")
-            make_graph_3d(calculator)
+            make_graph_3d(calculator, 1)
     elif calculator.status == 1:
+        if len(calculator.type_equations) == 2:
+            make_graph_2d(calculator, 0)
+        else:
+            make_graph_3d(calculator, 1)
         NonLinearEquations.getReadyAnswer(7)
 
 
@@ -442,7 +427,7 @@ def get_Determinant(matrix):
                   matrix[0][0] * matrix[1][2] * matrix[2][1])
 
 
-def make_graph_2d(calculator):
+def make_graph_2d(calculator, solves):
     try:
         ax = plt.gca()
         plt.grid()
@@ -460,7 +445,8 @@ def make_graph_2d(calculator):
         if calculator.type_equations[1] == 1:
             x4, y4 = get_eq_2d(calculator.x, 5)
             plt.plot(x4, y4, color="y", linewidth=4)
-        plt.scatter(calculator.x, calculator.y, color="g", s=60)
+        if solves:
+            plt.scatter(calculator.x, calculator.y, color="g", s=60)
         plt.show()
         del x1, x2, y1, y2
     except ValueError:
@@ -492,7 +478,7 @@ def get_eq_2d(x, types):
         return xs, y
 
 
-def make_graph_3d(calculator):
+def make_graph_3d(calculator, solves):
     try:
         x = np.arange(calculator.x - 10, calculator.x + 10, 0.1)
         y = np.arange(calculator.y - 10, calculator.y + 10, 0.1)
@@ -508,7 +494,8 @@ def make_graph_3d(calculator):
         axes.plot_surface(xs, ys, z1grid, color='r')
         axes.plot_surface(xs, ys, z2grid, color='y')
         axes.plot_surface(xs, ys, z3grid, color='g')
-        axes.scatter(calculator.x, calculator.y, calculator.z, s=40)
+        if solves:
+            axes.scatter(calculator.x, calculator.y, calculator.z, s=40)
         pylab.show()
         del xs, ys, z1grid, z2grid, z3grid
     except ValueError:
