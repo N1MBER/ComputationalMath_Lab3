@@ -29,7 +29,7 @@ class Qualifier:
                 print("\nPlease choose a equations:\n"
                       "\t1. x^2 - 2 = 0\n"
                       "\t2. 5/x - 2x = 0\n"
-                      "\t3. e^2x - 2\n"
+                      "\t3. e^2x - 2 = 0\n"
                       "\t4. x^3 - x + 4 = 0\n")
                 answer = int(input("Variant: ").strip())
                 if answer == 1:
