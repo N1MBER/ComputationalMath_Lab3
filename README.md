@@ -1,8 +1,10 @@
-#Laboratory work №3
-###Calculation methods for non linear equations:
+# Laboratory work №3
+
+### Calculation methods for non linear equations:
 * method Chord
 * method of Tangent
-###Calculation method for non linear systems - method of Newton
+
+### Calculation method for non linear systems - method of Newton
 Available equations to solve:
 * x^2 - 2 = 0
 * 5/x - 2x = 0
