@@ -206,15 +206,24 @@ class Calculator:
                 self.status = 1
         else:
             while 1 and self.iterations < 250000:
-                self.x = self.x_previous - get_Determinant(
-                    self.get_A(1, self.x_previous, self.y_previous, self.z_previous)) / get_Determinant(
-                    self.get_jacobian(self.x_previous, self.y_previous, self.z_previous))
-                self.y = self.y_previous - get_Determinant(
-                    self.get_A(2, self.x_previous, self.y_previous, self.z_previous)) / get_Determinant(
-                    self.get_jacobian(self.x_previous, self.y_previous, self.z_previous))
-                self.z = self.z_previous - get_Determinant(
-                    self.get_A(3, self.x_previous, self.y_previous, self.z_previous)) / get_Determinant(
-                    self.get_jacobian(self.x_previous, self.y_previous, self.z_previous))
+                try:
+                    self.x = self.x_previous - get_Determinant(
+                        self.get_A(1, self.x_previous, self.y_previous, self.z_previous)) / get_Determinant(
+                        self.get_jacobian(self.x_previous, self.y_previous, self.z_previous))
+                except ZeroDivisionError:
+                    self.x = self.x_previous - 1e-9
+                try:
+                    self.y = self.y_previous - get_Determinant(
+                        self.get_A(2, self.x_previous, self.y_previous, self.z_previous)) / get_Determinant(
+                        self.get_jacobian(self.x_previous, self.y_previous, self.z_previous))
+                except ZeroDivisionError:
+                    self.y = self.y_previous - 1e-9
+                try:
+                    self.z = self.z_previous - get_Determinant(
+                        self.get_A(3, self.x_previous, self.y_previous, self.z_previous)) / get_Determinant(
+                        self.get_jacobian(self.x_previous, self.y_previous, self.z_previous))
+                except ZeroDivisionError:
+                    self.z = self.z_previous - 1e-9
                 self.iterations += 1
                 if abs(self.x - self.x_previous) <= self.accuracy and abs(self.y - self.y_previous) <= self.accuracy \
                         and abs(self.z - self.z_previous) <= self.accuracy:
@@ -437,14 +446,14 @@ def make_graph_2d(calculator, solves):
                   str(get_equation_name_2d(calculator.type_equations[1])))
         x1, y1 = get_eq_2d(calculator.x, calculator.type_equations[0])
         x2, y2 = get_eq_2d(calculator.x, calculator.type_equations[1])
-        plt.plot(x1, y1, color="r", linewidth=4)
-        plt.plot(x2, y2, color="y", linewidth=4)
+        plt.plot(x1, y1, color="r", linewidth=2)
+        plt.plot(x2, y2, color="y", linewidth=2)
         if calculator.type_equations[0] == 1:
             x3, y3 = get_eq_2d(calculator.x, 5)
-            plt.plot(x3, y3, color="r", linewidth=4)
+            plt.plot(x3, y3, color="r", linewidth=2)
         if calculator.type_equations[1] == 1:
             x4, y4 = get_eq_2d(calculator.x, 5)
-            plt.plot(x4, y4, color="y", linewidth=4)
+            plt.plot(x4, y4, color="y", linewidth=2)
         if solves:
             plt.scatter(calculator.x, calculator.y, color="g", s=60)
         plt.show()
@@ -457,23 +466,35 @@ def make_graph_2d(calculator, solves):
 
 def get_eq_2d(x, types):
     if types == 1:
-        xs = np.linspace(-10.29, 0.29, 100)
+        a = x - 3
+        b = x + 3
+        if x - 3 < -10.29:
+            a = -10.29
+        elif x + 3 > 0.29:
+            b = 0.29
+        xs = np.linspace(a, b, 100)
         y = list(np.sqrt((-0.1 * np.power(i, 2) - i + 0.3) / 0.2) for i in xs)
         return xs, y
     elif types == 2:
-        xs = np.linspace(x - 5, x + 5, 100)
+        xs = np.linspace(x - 3, x + 3, 100)
         y = list((-0.2 * np.power(i, 2) + 0.7) / (1 - 0.1 * i) for i in xs)
         return xs, y
     elif types == 3:
-        xs = np.linspace(x - 5, x + 5, 100)
+        xs = np.linspace(x - 3, x + 3, 100)
         y = list((5 + np.power(i, 2) - i) for i in xs)
         return xs, y
     elif types == 4:
-        xs = np.linspace(x - 5, x + 5, 100)
+        xs = np.linspace(x - 3, x + 3, 100)
         y = list((2 - 2 * np.power(i, 3)) / 3 for i in xs)
         return xs, y
     elif types == 5:
-        xs = np.linspace(-10.29, 0.29, 100)
+        a = x - 3
+        b = x + 3
+        if x - 3 < -10.29:
+            a = -10.29
+        elif x + 3 > 0.29:
+            b = 0.29
+        xs = np.linspace(a, b, 100)
         y = list((-np.sqrt((-0.1 * np.power(i, 2) - i + 0.3) / 0.2)) for i in xs)
         return xs, y
 
@@ -495,7 +516,7 @@ def make_graph_3d(calculator, solves):
         axes.plot_surface(xs, ys, z2grid, color='y')
         axes.plot_surface(xs, ys, z3grid, color='g')
         if solves:
-            axes.scatter(calculator.x, calculator.y, calculator.z, s=40)
+            axes.scatter(calculator.x, calculator.y, calculator.z, color="b", s=40)
         pylab.show()
         del xs, ys, z1grid, z2grid, z3grid
     except ValueError:

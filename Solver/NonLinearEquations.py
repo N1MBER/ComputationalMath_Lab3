@@ -165,7 +165,6 @@ class Calculator:
     def check_derivative(self):
         float_range = np.arange(self.a, self.b, (self.b - self.a) / 100)
         convergence = 1
-        flag = 0
         if self.get_derivative(self.a) < 0:
             flag = 1
         else:
@@ -308,23 +307,27 @@ def getReadyAnswer(type_answer):
 
 def make_graph(calculator):
     try:
-        x = np.linspace(calculator.a, calculator.b, 100)
-        equations = {1: ["f(x) = x^2 - 2", [(math.pow(i, 2) - 2) for i in x]],
-                     2: ["f(x) = 5/x - 2x", [(5 / i - 2 * i) for i in x]],
-                     3: ["f(x) = e^2x - 2", [(math.pow(math.e, 2 * i) - 2) for i in x]],
-                     4: ["f(x) = x^3 - x + 4", [(math.pow(i, 3) - i + 4) for i in x]]}
-
         ax = plt.gca()
         plt.grid()
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        plt.title("Graphic of " + equations[calculator.type_equations][0])
-        plt.plot(x, 0 * x, color="black", linewidth=2)
+        maximum = calculator.b
+        minimum = calculator.a
         for segment in calculator.segments:
-            if calculator.a <= segment[0][0] <= calculator.b and calculator.a <= segment[0][1] <= calculator.b:
-                plt.plot(segment[0], segment[1], color="b")
-        plt.plot(x, equations[calculator.type_equations][1], color="r", linewidth=4)
-        plt.scatter(calculator.result, 0, color="g", s=60)
+            if segment[0][0] < minimum:
+                minimum = segment[0][0]
+            elif segment[0][1] > maximum:
+                maximum = segment[0][1]
+            plt.plot(segment[0], segment[1], color="b")
+        x = np.linspace(minimum, maximum, 100)
+        equations = {1: ["f(x) = x^2 - 2", [(math.pow(i, 2) - 2) for i in x]],
+                     2: ["f(x) = 5/x - 2x", [(5 / i - 2 * i) for i in x]],
+                     3: ["f(x) = e^2x - 2", [(math.pow(math.e, 2 * i) - 2) for i in x]],
+                     4: ["f(x) = x^3 - x + 4", [(math.pow(i, 3) - i + 4) for i in x]]}
+        plt.title("Graphic of " + equations[calculator.type_equations][0])
+        plt.plot(x, equations[calculator.type_equations][1], color="g", linewidth=2)
+        plt.plot(x, 0 * x, color="black", linewidth=1)
+        plt.scatter(calculator.result, 0, color="r", s=80)
         plt.show()
         del x
     except ValueError:
